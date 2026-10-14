@@ -1,3 +1,3 @@
 # CLAUDE.md
 
-Bu repodaki kurallar `AGENTS.md` dosyasındadır; önce onu oku. Plan: `docs/MASTER_PLAN.md`.
+The rules for this repository are in `AGENTS.md`; read it first. Plan: `docs/MASTER_PLAN.md`.

@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace CoFast.Targets;
 
-/// <summary>Bir pencerenin bir hedef profile uyup uymadığını belirler (saf mantık, test edilebilir).</summary>
+/// <summary>Decides whether a window matches a target profile (pure logic, testable).</summary>
 internal static class TargetMatcher
 {
     private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(100);
@@ -33,7 +33,7 @@ internal static class TargetMatcher
         return true;
     }
 
-    /// <summary>Geçersiz regex'i hata yerine "eşleşmedi" olarak ele alır.</summary>
+    /// <summary>Treats an invalid regex as "no match" instead of an error.</summary>
     public static bool SafeIsMatch(string input, string pattern)
     {
         try

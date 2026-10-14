@@ -4,7 +4,7 @@ using CoFast.Native;
 
 namespace CoFast.Targets;
 
-/// <summary>Açık, kullanıcıya görünen üst düzey pencereleri Z sırasıyla (en son kullanılan önce) listeler.</summary>
+/// <summary>Lists open, user-visible top-level windows in Z order (most recently used first).</summary>
 internal static class WindowFinder
 {
     public static List<WindowInfo> EnumerateWindows()
@@ -45,7 +45,7 @@ internal static class WindowFinder
         return result;
     }
 
-    /// <summary>Profile uyan en son kullanılmış pencere.</summary>
+    /// <summary>The most recently used window that matches the profile.</summary>
     public static WindowInfo? FindFirst(TargetProfile profile, IReadOnlyList<WindowInfo>? windows = null)
     {
         windows ??= EnumerateWindows();
@@ -103,7 +103,7 @@ internal static class WindowFinder
             return false;
         }
 
-        // Başka sanal masaüstündeki veya gizlenmiş UWP pencereleri.
+        // Windows on another virtual desktop, or hidden (cloaked) UWP windows.
         if (NativeMethods.DwmGetWindowAttribute(hwnd, NativeMethods.DWMWA_CLOAKED, out int cloaked, sizeof(int)) == 0
             && cloaked != 0)
         {

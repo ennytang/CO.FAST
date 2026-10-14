@@ -16,8 +16,8 @@ internal enum DispatchStatus
 internal sealed record DispatchResult(DispatchStatus Status, string TargetName);
 
 /// <summary>
-/// Panodaki görüntüyü hedef pencereye yapıştırır:
-/// pencereyi bul → öne getir → odak stratejisi → Ctrl+V. Enter'a basılmaz.
+/// Pastes the clipboard image into the target window:
+/// find window → bring to front → focus strategy → Ctrl+V. Enter is never pressed.
 /// </summary>
 internal sealed class Dispatcher
 {
@@ -28,20 +28,20 @@ internal sealed class Dispatcher
         _settings = settings;
     }
 
-    /// <summary>Profile uyan en son kullanılan pencereye gönderir.</summary>
+    /// <summary>Sends to the most recently used window that matches the profile.</summary>
     public async Task<DispatchResult> DispatchAsync(TargetProfile profile)
     {
         var window = WindowFinder.FindFirst(profile);
         if (window is null)
         {
-            Log.Info($"Hedef açık değil: {profile.DisplayName}");
+            Log.Info($"Target not open: {profile.DisplayName}");
             return new DispatchResult(DispatchStatus.TargetNotOpen, profile.DisplayName);
         }
 
         return await DispatchToWindowAsync(window.Handle, profile.DisplayName, profile);
     }
 
-    /// <summary>Belirli bir pencereye gönderir (profil yoksa odak stratejisi uygulanmaz).</summary>
+    /// <summary>Sends to a specific window (no focus strategy without a profile).</summary>
     public async Task<DispatchResult> DispatchToWindowAsync(IntPtr hwnd, string name, TargetProfile? profile)
     {
         var s = _settings();
@@ -58,7 +58,7 @@ internal sealed class Dispatcher
 
         if (!await ForegroundHelper.ActivateAsync(hwnd, s.FocusTimeoutMs))
         {
-            Log.Warn($"Pencere öne getirilemedi: {name}");
+            Log.Warn($"Could not bring window to front: {name}");
             return new DispatchResult(DispatchStatus.FocusFailed, name);
         }
 
@@ -66,10 +66,10 @@ internal sealed class Dispatcher
         {
             await ApplyFocusStrategyAsync(hwnd, profile, s);
 
-            // Odak stratejisi başka bir pencereyi öne getirmişse yapıştırma.
+            // Don't paste if the focus strategy brought another window to the front.
             if (!ForegroundHelper.IsForeground(hwnd))
             {
-                Log.Warn($"Odak stratejisinden sonra hedef önde değil: {name}");
+                Log.Warn($"Target not in front after focus strategy: {name}");
                 return new DispatchResult(DispatchStatus.FocusFailed, name);
             }
         }
@@ -81,11 +81,11 @@ internal sealed class Dispatcher
 
         if (!InputSender.SendPaste())
         {
-            Log.Warn($"Ctrl+V gönderilemedi: {name}");
+            Log.Warn($"Could not send Ctrl+V: {name}");
             return new DispatchResult(DispatchStatus.PasteFailed, name);
         }
 
-        Log.Info($"Yapıştırıldı: {name}");
+        Log.Info($"Pasted: {name}");
         return new DispatchResult(DispatchStatus.Pasted, name);
     }
 
@@ -101,7 +101,7 @@ internal sealed class Dispatcher
                 }
                 else
                 {
-                    Log.Warn($"Geçersiz odak kısayolu: '{profile.FocusShortcut}' ({profile.DisplayName})");
+                    Log.Warn($"Invalid focus shortcut: '{profile.FocusShortcut}' ({profile.DisplayName})");
                 }
 
                 break;
@@ -121,7 +121,7 @@ internal sealed class Dispatcher
                 }
                 else
                 {
-                    Log.Warn($"ClickRelative için ClickX/ClickY eksik ({profile.DisplayName})");
+                    Log.Warn($"ClickX/ClickY missing for ClickRelative ({profile.DisplayName})");
                 }
 
                 break;

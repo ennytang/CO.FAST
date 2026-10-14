@@ -12,7 +12,7 @@
     <RootNamespace>CoFast</RootNamespace>
     <AssemblyName>CoFast</AssemblyName>
     <Product>CO.FAST</Product>
-    <Description>PrtScn ekran alıntısını seçili AI uygulamasının chatine yapıştırır.</Description>
+    <Description>Pastes PrtScn screenshots into the chat box of the selected AI app.</Description>
     <Version>0.1.0</Version>
     <Authors>Enis Özdemir</Authors>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>

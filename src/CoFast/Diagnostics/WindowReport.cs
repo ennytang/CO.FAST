@@ -3,17 +3,17 @@ using CoFast.Targets;
 
 namespace CoFast.Diagnostics;
 
-/// <summary>Hedef profillerini ayarlamak için açık pencerelerin metin raporu.</summary>
+/// <summary>Text report of open windows, used to tune target profiles.</summary>
 internal static class WindowReport
 {
     public static string Build(IReadOnlyList<WindowInfo> windows, IReadOnlyList<TargetProfile> profiles)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"CO.FAST tanılama — {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        sb.AppendLine($"CO.FAST diagnostics — {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         sb.AppendLine($"Windows: {Environment.OSVersion.VersionString}");
         sb.AppendLine();
-        sb.AppendLine("Açık pencereler (en son kullanılan önce):");
-        sb.AppendLine("süreç | sınıf | başlık | eşleşen profiller");
+        sb.AppendLine("Open windows (most recently used first):");
+        sb.AppendLine("process | class | title | matching profiles");
 
         foreach (var w in windows)
         {

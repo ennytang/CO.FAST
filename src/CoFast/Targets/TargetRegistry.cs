@@ -1,8 +1,8 @@
 namespace CoFast.Targets;
 
 /// <summary>
-/// İlk çalıştırmada ayar dosyasına yazılan varsayılan hedef profilleri.
-/// Süreç adları ve odak stratejileri Tanılama çıktısıyla doğrulanıp ayar dosyasından düzeltilebilir.
+/// Default target profiles written to the settings file on first run.
+/// Process names and focus strategies can be verified with the Diagnostics output and fixed in the settings file.
 /// </summary>
 internal static class TargetRegistry
 {
@@ -39,7 +39,7 @@ internal static class TargetRegistry
         new TargetProfile
         {
             Id = "browser-ai",
-            DisplayName = "Tarayıcı (Gemini / ChatGPT / Claude sekmesi)",
+            DisplayName = "Browser (Gemini / ChatGPT / Claude tab)",
             ProcessNames = new() { "chrome", "msedge", "brave", "firefox", "opera", "vivaldi" },
             TitlePattern = "(?i)gemini|chatgpt|claude",
             FocusStrategy = FocusStrategy.None,

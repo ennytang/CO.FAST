@@ -9,7 +9,7 @@ using CoFast.Targets;
 
 namespace CoFast.App;
 
-/// <summary>Tray ikonu, menü ve yakalama → yapıştırma akışının bağlandığı yer.</summary>
+/// <summary>Wires up the tray icon, the menu, and the capture → paste flow.</summary>
 internal sealed class TrayApp : ApplicationContext
 {
     private const int TooltipMaxLength = 127;
@@ -24,7 +24,7 @@ internal sealed class TrayApp : ApplicationContext
     private Icon? _icon;
     private bool _busy;
 
-    // "Diğer pencere" ile seçilen, yalnızca bu oturumda geçerli hedef.
+    // Target picked via "Other window"; valid for this session only.
     private IntPtr _pinnedWindow = IntPtr.Zero;
     private string _pinnedName = string.Empty;
 
@@ -33,7 +33,7 @@ internal sealed class TrayApp : ApplicationContext
         _store = store;
         _settings = _store.Load();
 
-        _menu.Items.Add(Strings.AppName); // Boş menü açılmaz; Opening içinde yeniden kurulur.
+        _menu.Items.Add(Strings.AppName); // An empty menu won't open; it is rebuilt in Opening.
         _menu.Opening += (_, _) => RebuildMenu();
 
         _tray = new NotifyIcon
@@ -64,7 +64,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         catch (Exception ex)
         {
-            Log.Error("Yakalama başlatılamadı.", ex);
+            Log.Error("Capture could not be started.", ex);
             Notify(string.Format(Strings.NotifyHookFailed, Log.FilePath), ToolTipIcon.Error, force: true);
         }
     }
@@ -83,7 +83,7 @@ internal sealed class TrayApp : ApplicationContext
         base.Dispose(disposing);
     }
 
-    // --- Akış ---------------------------------------------------------------
+    // --- Flow ---------------------------------------------------------------
 
     private async void OnCaptureReady(object? sender, EventArgs e)
     {
@@ -117,7 +117,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         catch (Exception ex)
         {
-            Log.Error("Yapıştırma akışında hata.", ex);
+            Log.Error("Error in the paste flow.", ex);
             Notify(Strings.NotifyUnexpectedError, ToolTipIcon.Error);
         }
         finally
@@ -141,16 +141,16 @@ internal sealed class TrayApp : ApplicationContext
                 break;
             case DispatchStatus.Pasted:
             default:
-                break; // Başarı sessizdir; imleç zaten hedefte.
+                break; // Success is silent; the cursor is already in the target.
         }
     }
 
-    // --- Menü ---------------------------------------------------------------
+    // --- Menu ---------------------------------------------------------------
 
     private void OnTrayClick(object? sender, MouseEventArgs e)
     {
-        // Sol tık da menüyü açsın. NotifyIcon'un kendi (iç) yöntemi menünün
-        // dışına tıklanınca kapanmasını sağlar; bulunamazsa düz Show kullanılır.
+        // Left click opens the menu too. NotifyIcon's own (internal) method makes
+        // the menu close when clicking outside it; plain Show is the fallback.
         if (e.Button == MouseButtons.Left)
         {
             var method = typeof(NotifyIcon).GetMethod(
@@ -248,7 +248,7 @@ internal sealed class TrayApp : ApplicationContext
         _settings.SelectedTargetId = id;
         SaveSettings();
         UpdateTrayState();
-        Log.Info($"Hedef seçildi: {id}");
+        Log.Info($"Target selected: {id}");
     }
 
     private void PinWindow(IntPtr handle, string name)
@@ -256,7 +256,7 @@ internal sealed class TrayApp : ApplicationContext
         _pinnedWindow = handle;
         _pinnedName = name;
         UpdateTrayState();
-        Log.Info("Hedef olarak belirli bir pencere seçildi.");
+        Log.Info("A specific window was selected as the target.");
     }
 
     private void ClearPin()
@@ -285,7 +285,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         catch (Exception ex)
         {
-            Log.Error("Otomatik başlatma değiştirilemedi.", ex);
+            Log.Error("Could not change auto-start.", ex);
             Notify(Strings.NotifyAutoStartFailed, ToolTipIcon.Error, force: true);
         }
     }
@@ -316,7 +316,7 @@ internal sealed class TrayApp : ApplicationContext
         }
     }
 
-    // --- Yardımcılar --------------------------------------------------------
+    // --- Helpers ------------------------------------------------------------
 
     private TargetProfile? SelectedProfile() =>
         _settings.Targets.FirstOrDefault(t => t.Id == _settings.SelectedTargetId);
@@ -386,7 +386,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         catch (Exception ex)
         {
-            Log.Error("Otomatik başlatma durumu okunamadı.", ex);
+            Log.Error("Could not read auto-start state.", ex);
             return false;
         }
     }
@@ -404,7 +404,7 @@ internal sealed class TrayApp : ApplicationContext
         }
         catch (Exception)
         {
-            // .json için ilişkili uygulama yoksa Not Defteri ile aç.
+            // If no app is associated with .json, open it in Notepad.
             Process.Start(new ProcessStartInfo("notepad.exe", $"\"{path}\"") { UseShellExecute = true });
         }
     }

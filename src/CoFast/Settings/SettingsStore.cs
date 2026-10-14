@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace CoFast.Settings;
 
-/// <summary>Ayar dosyasını okur ve yazar. Bozuk dosya yedeklenir, varsayılanlar kullanılır.</summary>
+/// <summary>Reads and writes the settings file. A corrupt file is backed up and defaults are used.</summary>
 internal sealed class SettingsStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -20,7 +20,7 @@ internal sealed class SettingsStore
 
     public string FilePath { get; }
 
-    /// <summary>Son okumada bozuk dosya yedeklendiyse yedeğin yolu; aksi hâlde null.</summary>
+    /// <summary>Path of the backup if the last load backed up a corrupt file; otherwise null.</summary>
     public string? LastBackupPath { get; private set; }
 
     public static string DefaultDirectory =>
@@ -42,13 +42,13 @@ internal sealed class SettingsStore
         {
             var json = File.ReadAllText(FilePath);
             var settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions)
-                ?? throw new JsonException("Boş ayar dosyası.");
+                ?? throw new JsonException("Empty settings file.");
             settings.Normalize();
             return settings;
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException or ArgumentException)
         {
-            LastBackupPath = $"{FilePath}.bozuk-{DateTime.Now:yyyyMMdd-HHmmss}";
+            LastBackupPath = $"{FilePath}.corrupt-{DateTime.Now:yyyyMMdd-HHmmss}";
             File.Copy(FilePath, LastBackupPath, overwrite: true);
             var fresh = new AppSettings();
             fresh.Normalize();

@@ -1,8 +1,8 @@
 namespace CoFast.Capture;
 
 /// <summary>
-/// PrtScn'e basıldıktan sonra belirli bir süre "kurulu" kalan durum.
-/// Sadece kurulu durumdayken panoya gelen görüntüler işlenir.
+/// State that stays "armed" for a while after PrtScn is pressed.
+/// Only images that reach the clipboard while armed are handled.
 /// </summary>
 internal sealed class ArmState
 {

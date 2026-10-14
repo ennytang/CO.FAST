@@ -50,7 +50,7 @@ public sealed class SettingsStoreTests : IDisposable
     public void CorruptFile_IsBackedUp_AndDefaultsUsed()
     {
         Directory.CreateDirectory(_dir);
-        File.WriteAllText(FilePath, "{ bu json değil");
+        File.WriteAllText(FilePath, "{ this is not json");
 
         var store = new SettingsStore(FilePath);
         var s = store.Load();
@@ -66,7 +66,7 @@ public sealed class SettingsStoreTests : IDisposable
         Directory.CreateDirectory(_dir);
         File.WriteAllText(FilePath, """
             {
-              // yorumlara izin verilir
+              // comments are allowed
               "ArmTimeoutSeconds": 99999,
               "Targets": [
                 { "Id": "a", "ProcessNames": ["Claude.exe", " ", "x"] },

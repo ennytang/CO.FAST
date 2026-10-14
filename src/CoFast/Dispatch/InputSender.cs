@@ -3,7 +3,7 @@ using CoFast.Native;
 
 namespace CoFast.Dispatch;
 
-/// <summary>SendInput ile sentetik klavye ve fare olayları gönderir.</summary>
+/// <summary>Sends synthetic keyboard and mouse events with SendInput.</summary>
 internal static class InputSender
 {
     private static readonly int InputSize = Marshal.SizeOf<NativeMethods.INPUT>();
@@ -30,10 +30,10 @@ internal static class InputSender
         return Send(inputs.ToArray());
     }
 
-    /// <summary>Tek bir tuşa basıp bırakır.</summary>
+    /// <summary>Presses and releases a single key.</summary>
     public static bool TapKey(ushort vk) => Send(new[] { Key(vk, up: false), Key(vk, up: true) });
 
-    /// <summary>İmleci verilen ekran noktasına götürüp sol tıklar.</summary>
+    /// <summary>Moves the cursor to the given screen point and left-clicks.</summary>
     public static bool LeftClickAt(int x, int y)
     {
         if (!NativeMethods.SetCursorPos(x, y))

@@ -3,8 +3,8 @@ using System.Runtime.InteropServices;
 namespace CoFast.Capture;
 
 /// <summary>
-/// Pano başka bir uygulama tarafından kilitliyken kısa denemelerle erişir.
-/// Pano içeriği hiçbir yere yazılmaz.
+/// Accesses the clipboard with short retries while another app holds it locked.
+/// Clipboard contents are never written anywhere.
 /// </summary>
 internal static class ClipboardHelper
 {

@@ -3,8 +3,8 @@ using CoFast.Diagnostics;
 namespace CoFast.Capture;
 
 /// <summary>
-/// PrtScn → (alıntı aracı) → pano akışını izler. Kurulu durumdayken panoya görüntü gelirse
-/// <see cref="CaptureReady"/> olayını bir kez tetikler.
+/// Watches the PrtScn → (Snipping Tool) → clipboard flow. If an image reaches the clipboard while armed,
+/// raises <see cref="CaptureReady"/> once.
 /// </summary>
 internal sealed class CaptureCoordinator : IDisposable
 {
@@ -24,7 +24,7 @@ internal sealed class CaptureCoordinator : IDisposable
         _clipboard.ClipboardUpdated += OnClipboardUpdated;
     }
 
-    /// <summary>PrtScn sonrası panoya görüntü geldi; yapıştırma için hazır.</summary>
+    /// <summary>An image reached the clipboard after PrtScn; ready to paste.</summary>
     public event EventHandler? CaptureReady;
 
     public bool Paused { get; set; }
@@ -33,7 +33,7 @@ internal sealed class CaptureCoordinator : IDisposable
     {
         _hook.Install();
         _clipboard.Start();
-        Log.Info("Yakalama başlatıldı (klavye kancası + pano dinleyicisi).");
+        Log.Info("Capture started (keyboard hook + clipboard listener).");
     }
 
     public void UpdateTiming(TimeSpan armTimeout, int debounceMs)
@@ -57,7 +57,7 @@ internal sealed class CaptureCoordinator : IDisposable
             return;
         }
 
-        // Kanca geri çağrısı hızlı dönmeli; sadece durum güncellenir.
+        // The hook callback must return quickly; only state is updated.
         _arm.Arm(DateTime.UtcNow);
     }
 
@@ -67,7 +67,7 @@ internal sealed class CaptureCoordinator : IDisposable
         {
             _arm.Disarm();
             _debounce.Stop();
-            Log.Info("Alıntı Esc ile iptal edildi.");
+            Log.Info("Snip cancelled with Esc.");
         }
     }
 
@@ -78,7 +78,7 @@ internal sealed class CaptureCoordinator : IDisposable
             return;
         }
 
-        // Alıntı aracı panoyu art arda güncelleyebilir; son güncellemeyi bekle.
+        // The Snipping Tool may update the clipboard several times; wait for the last update.
         _debounce.Stop();
         _debounce.Start();
     }
@@ -97,13 +97,13 @@ internal sealed class CaptureCoordinator : IDisposable
             if (await ClipboardHelper.ContainsImageAsync())
             {
                 _arm.Disarm();
-                Log.Info("PrtScn sonrası panoya görüntü geldi.");
+                Log.Info("Image reached the clipboard after PrtScn.");
                 CaptureReady?.Invoke(this, EventArgs.Empty);
             }
         }
         catch (Exception ex)
         {
-            Log.Error("Pano kontrolü başarısız.", ex);
+            Log.Error("Clipboard check failed.", ex);
         }
         finally
         {

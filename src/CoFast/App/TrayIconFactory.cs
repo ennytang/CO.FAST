@@ -5,7 +5,7 @@ using CoFast.Native;
 
 namespace CoFast.App;
 
-/// <summary>Ikon dosyası gerektirmeden çalışma anında tray ikonu çizer.</summary>
+/// <summary>Draws the tray icon at runtime, so no icon file is needed.</summary>
 internal static class TrayIconFactory
 {
     public static Icon Create(bool paused)

@@ -3,7 +3,7 @@ using System.Text;
 namespace CoFast.Diagnostics;
 
 /// <summary>
-/// Basit dosya logu. Pano içeriği ve tuş bilgisi asla yazılmaz (AGENTS.md).
+/// Simple file log. Clipboard contents and key data are never written (AGENTS.md).
 /// </summary>
 internal static class Log
 {
@@ -42,7 +42,7 @@ internal static class Log
             }
             catch (IOException)
             {
-                // Log yazılamaması uygulamayı durdurmamalı.
+                // A failed log write must not stop the app.
             }
             catch (UnauthorizedAccessException)
             {

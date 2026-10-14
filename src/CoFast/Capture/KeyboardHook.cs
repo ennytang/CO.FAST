@@ -5,13 +5,13 @@ using CoFast.Native;
 namespace CoFast.Capture;
 
 /// <summary>
-/// Düşük seviyeli klavye kancası. Yalnızca PrtScn ve Esc tuşlarına bakar,
-/// hiçbir tuşu yutmaz ve hiçbir tuşu kaydetmez (AGENTS.md güvenlik kuralları).
-/// Mesaj döngüsü olan thread'de (UI thread) oluşturulmalıdır.
+/// Low-level keyboard hook. Looks only at PrtScn and Esc,
+/// never swallows a key and never records a key (AGENTS.md security rules).
+/// Must be created on a thread with a message loop (the UI thread).
 /// </summary>
 internal sealed class KeyboardHook : IDisposable
 {
-    // Delege alan olarak tutulur; aksi hâlde GC toplar ve kanca çöker.
+    // Kept in a field; otherwise the GC collects the delegate and the hook crashes.
     private readonly NativeMethods.LowLevelKeyboardProc _proc;
     private IntPtr _hook;
 
@@ -20,10 +20,10 @@ internal sealed class KeyboardHook : IDisposable
         _proc = HookCallback;
     }
 
-    /// <summary>PrtScn'e basıldı (tuş inişi veya kalkışı).</summary>
+    /// <summary>PrtScn was pressed (key down or key up).</summary>
     public event EventHandler? PrintScreenPressed;
 
-    /// <summary>Esc'e basıldı.</summary>
+    /// <summary>Esc was pressed.</summary>
     public event EventHandler? EscapePressed;
 
     public bool IsInstalled => _hook != IntPtr.Zero;
@@ -66,10 +66,10 @@ internal sealed class KeyboardHook : IDisposable
                 var isDown = msg is NativeMethods.WM_KEYDOWN or NativeMethods.WM_SYSKEYDOWN;
                 var isUp = msg is NativeMethods.WM_KEYUP or NativeMethods.WM_SYSKEYUP;
 
-                // Kendi gönderdiğimiz (enjekte) tuşlar yok sayılır.
+                // Keys we injected ourselves are ignored.
                 if (!injected)
                 {
-                    // PrtScn bazı sistemlerde yalnızca kalkış olayı üretir; ikisi de kabul edilir.
+                    // On some systems PrtScn only produces a key-up event; both are accepted.
                     if (data.vkCode == NativeMethods.VK_SNAPSHOT && (isDown || isUp))
                     {
                         PrintScreenPressed?.Invoke(this, EventArgs.Empty);
@@ -83,7 +83,7 @@ internal sealed class KeyboardHook : IDisposable
         }
         catch
         {
-            // Kanca içinde istisna kaçmamalı; tuş her durumda iletilir.
+            // No exception may escape the hook; the key is always passed on.
         }
 
         return NativeMethods.CallNextHookEx(_hook, nCode, wParam, lParam);

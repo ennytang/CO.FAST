@@ -1,62 +1,63 @@
 # CO.FAST — Master Plan
 
-> Onaylanan plan. Projedeki tek doğru kaynak budur; değişiklikler önce burada yapılır.
+> The approved plan. This is the single source of truth for the project; changes are made here first.
 
-## 1. Ürün özeti
+## 1. Product summary
 
-CO.FAST, Windows'ta arka planda çalışan hafif bir tray uygulamasıdır. PrtScn ile alınan ekran alıntısını, tray menüsünden seçilmiş açık AI uygulamasının (Claude Desktop, Antigravity, Antigravity IDE veya tarayıcıdaki aktif AI sekmesi) chat kutusuna otomatik yapıştırır ve imleci orada bırakır. Kullanıcı promptunu doğrudan hedef uygulamada yazar. v1'de hedef limit uyarısı verirse alıntı öncelik sırasındaki bir sonraki hedefe gider; limit kalkınca ana hedefe dönülür. Antigravity hesap geçişi Antigravity-Manager'a bırakılmıştır.
+CO.FAST is a lightweight Windows tray app that runs in the background. It pastes a screenshot taken with PrtScn into the chat box of the open AI app selected from the tray menu (Claude Desktop, Antigravity, Antigravity IDE, or the active AI tab in a browser) and leaves the cursor there. The user types the prompt directly in the target app. In v1, if the target shows a usage-limit warning, the screenshot goes to the next target in priority order, and the primary target is restored once its limit clears. Antigravity account switching is left to Antigravity-Manager.
 
-## 2. Karar tablosu
+## 2. Decision table
 
-| # | Konu | Karar | Gerekçe |
+| # | Topic | Decision | Rationale |
 |---|---|---|---|
-| 1 | Platform | Sadece Windows | En hızlı ve en sağlam geliştirme |
-| 2 | Tetikleme | PrtScn + Windows alıntı aracı, uygulama sadece dinler | Alışkanlık değişmez |
-| 3 | Prompt kutusu | Yok, prompt hedef uygulamada yazılır | En kısa akış |
-| 4 | Hedefler | Claude Desktop, Antigravity, Antigravity IDE, tarayıcı | Kullanılan araçlar |
-| 5 | Sohbet | Hedefte açık sohbete devam | Bağlam korunur |
-| 6 | Hedef seçimi | Tray menüsü | Basit, görsel |
-| 7 | Hesap geçişi | Antigravity-Manager'da kalır | Tekerleği yeniden icat etmemek |
-| 8 | Limit tespiti | UI Automation, sonuç yoksa OCR | En güvenilir yol |
-| 9 | Geçiş | Sabit öncelik sırası + bildirim + ana hedefe otomatik dönüş | Öngörülebilir |
-| 10 | Saklama | Görüntü diske yazılmaz | Gizlilik |
-| 11 | Teknoloji | C# / .NET 10 (LTS), WinForms tray, FlaUI (v1), Windows.Media.Ocr (v1) | Windows API'lerine doğal erişim. .NET 8 desteği Kasım 2026'da bittiği için LTS olan .NET 10 seçildi |
-| 12 | Paketleme | Self-contained tek .exe, `Run` anahtarıyla otomatik başlatma | Kurulumsuz |
-| 13 | Kapsam | Kişisel, açık kaynağa hazır düzen | Sonradan paylaşılabilir |
-| 14 | MVP | Çekirdek akış + hedef seçimi + odaklama + otomatik başlatma | Hızlı ve kullanılabilir |
+| 1 | Platform | Windows only | Fastest and most robust development |
+| 2 | Trigger | PrtScn + Windows Snipping Tool; the app only listens | No change to existing habits |
+| 3 | Prompt box | None; the prompt is typed in the target app | Shortest flow |
+| 4 | Targets | Claude Desktop, Antigravity, Antigravity IDE, browser | The tools actually in use |
+| 5 | Conversation | Continue the chat already open in the target | Context is preserved |
+| 6 | Target selection | Tray menu | Simple, visual |
+| 7 | Account switching | Stays in Antigravity-Manager | Don't reinvent the wheel |
+| 8 | Limit detection | UI Automation, OCR as fallback | Most reliable approach |
+| 9 | Failover | Fixed priority order + notification + automatic return to primary | Predictable |
+| 10 | Storage | Screenshots are never written to disk | Privacy |
+| 11 | Technology | C# / .NET 10 (LTS), WinForms tray, FlaUI (v1), Windows.Media.Ocr (v1) | Native access to Windows APIs. .NET 10 was chosen because .NET 8 support ends in November 2026 |
+| 12 | Packaging | Self-contained single .exe, auto-start via the `Run` registry key | No installer |
+| 13 | Scope | Personal, structured to be open-source ready | Can be shared later |
+| 14 | MVP | Core flow + target selection + focus + auto-start | Fast and usable |
+| 15 | Language | English code, docs, and UI | Open-source readiness |
 
-## 3. Sistem mimarisi
+## 3. System architecture
 
 ```
-[PrtScn]──► KeyboardHook (WH_KEYBOARD_LL, tuşu yutmaz)
-                │  "armed" (30 sn pencere, Esc iptal)
+[PrtScn]──► KeyboardHook (WH_KEYBOARD_LL, never swallows the key)
+                │  "armed" (30 s window, Esc cancels)
                 ▼
-     Windows alıntı aracı ──► Pano
+     Windows Snipping Tool ──► Clipboard
                 │
      ClipboardWatcher (WM_CLIPBOARDUPDATE)
-                │  armed + görüntü var + debounce
+                │  armed + image present + debounce
                 ▼
         CaptureCoordinator
                 │
      [v1] FailoverManager ──► LimitDetector (UIA → OCR)
-                │  uygun hedef
+                │  suitable target
                 ▼
            Dispatcher
-     1. Pencereyi bul (süreç adı + başlık)
-     2. Küçültülmüşse geri getir, öne al (ForegroundHelper)
-     3. Odak stratejisi (yok / kısayol / göreli tıklama)
-     4. SendInput Ctrl+V  (Enter'a basılmaz)
+     1. Find the window (process name + title)
+     2. Restore if minimized, bring to front (ForegroundHelper)
+     3. Focus strategy (none / shortcut / relative click)
+     4. SendInput Ctrl+V  (Enter is never pressed)
                 ▼
-     Kullanıcı promptu hedef uygulamada yazar
+     The user types the prompt in the target app
 ```
 
-Kritik teknik noktalar:
-- PrtScn, `RegisterHotKey` ile değil düşük seviyeli kanca ile dinlenir; aksi hâlde alıntı aracı açılmaz.
-- "Armed" penceresi sayesinde PrtScn'den bağımsız kopyalanan görüntüler hiçbir şeyi tetiklemez.
-- Odak kısıtı `AttachThreadInput` ile aşılır. Yapıştırmadan önce hedefin gerçekten öne geldiği doğrulanır; gelmezse yapıştırma yapılmaz.
-- Görüntü panoda kalır; otomatik yapıştırma başarısız olursa elle Ctrl+V yapılabilir.
+Key technical points:
+- PrtScn is observed with a low-level hook, not `RegisterHotKey`; otherwise the Snipping Tool would not open.
+- Thanks to the "armed" window, images copied independently of PrtScn never trigger anything.
+- The foreground lock is bypassed with `AttachThreadInput`. Before pasting, the app verifies that the target really is in front; if not, nothing is pasted.
+- The image stays on the clipboard; if automatic pasting fails, the user can press Ctrl+V manually.
 
-## 4. Hedef ve limit sistemi (v1)
+## 4. Target and limit system (v1)
 
 ```
 TargetProfile {
@@ -68,23 +69,23 @@ TargetProfile {
 }
 ```
 
-Durum makinesi:
+State machine:
 
 ```
-Ready ──limit tespit──► Limited ──10 dk──► Probing
-  ▲                                         │
-  └────────── limit yok ────────────────────┘
-  (pencere kapanınca Closed; tekrar açılınca Ready)
+Ready ──limit detected──► Limited ──10 min──► Probing
+  ▲                                              │
+  └──────────────── no limit ────────────────────┘
+  (window closed: Closed; reopened: Ready)
 ```
 
-Geçiş algoritması:
-1. Seçili hedef `Ready` ise ona gönder.
-2. Gönderimden önce LimitDetector kontrol eder; limit görülürse hedef `Limited` olur.
-3. Öncelik sırasında açık ve `Ready` olan ilk hedefe gönderilir, bildirim çıkar.
-4. Uygun hedef yoksa yapıştırma yapılmaz, bildirim çıkar, görüntü panoda kalır.
-5. RecoveryScheduler `Limited` hedefleri 10 dakikada bir yoklar; ana hedef `Ready` olunca ona dönülür.
+Failover algorithm:
+1. If the selected target is `Ready`, send to it.
+2. Before sending, LimitDetector checks it; if a limit is detected, the target becomes `Limited`.
+3. Send to the first open `Ready` target in priority order and show a notification.
+4. If no target is available, nothing is pasted, a notification is shown, and the image stays on the clipboard.
+5. RecoveryScheduler probes `Limited` targets every 10 minutes; when the primary target is `Ready` again, it becomes the target again.
 
-## 5. Klasör yapısı
+## 5. Folder structure
 
 ```
 CoFast/
@@ -94,55 +95,55 @@ CoFast/
 ├─ docs/MASTER_PLAN.md
 ├─ src/CoFast/
 │  ├─ Program.cs
-│  ├─ App/        (TrayApp, TrayIconFactory, Notifier, AutoStart)
-│  ├─ Native/     (NativeMethods)
-│  ├─ Capture/    (KeyboardHook, ClipboardWatcher, ArmState, CaptureCoordinator, ClipboardHelper)
-│  ├─ Targets/    (TargetProfile, TargetRegistry, TargetMatcher, WindowFinder, WindowInfo)
-│  ├─ Dispatch/   (Dispatcher, ForegroundHelper, InputSender, HotkeyParser, ClickMath)
-│  ├─ Limits/     [v1]
-│  ├─ Settings/   (AppSettings, SettingsStore)
-│  ├─ Diagnostics/(Log, WindowReport)
-│  └─ Localization/ (Strings; v2'de TR/EN)
+│  ├─ App/          (TrayApp, TrayIconFactory, AutoStart)
+│  ├─ Native/       (NativeMethods)
+│  ├─ Capture/      (KeyboardHook, ClipboardWatcher, ArmState, CaptureCoordinator, ClipboardHelper)
+│  ├─ Targets/      (TargetProfile, TargetRegistry, TargetMatcher, WindowFinder, WindowInfo)
+│  ├─ Dispatch/     (Dispatcher, ForegroundHelper, InputSender, HotkeyParser, ClickMath)
+│  ├─ Limits/       [v1]
+│  ├─ Settings/     (AppSettings, SettingsStore)
+│  ├─ Diagnostics/  (Log, WindowReport)
+│  └─ Localization/ (Strings; TR/EN in v2)
 └─ tests/CoFast.Tests/
 ```
 
-## 6. Arayüz
+## 6. User interface
 
-- Tray menüsü (MVP): hedef listesi, "Diğer pencere…", Duraklat/Devam, Windows ile başlat, Tanılama, Ayarlar dosyasını aç, Çıkış.
-- Tray ikonu durumu: normal / duraklatılmış.
-- Bildirimler: yapıştırma başarısız, hedef bulunamadı, [v1] limit geçişi.
-- [v1] Öncelik sırası ve hedef durumları. [v2] Ayar ekranı, dil seçimi.
+- Tray menu (MVP): target list, "Other window", Pause, Start with Windows, Diagnostics, Open settings file, Reload settings, Open log file, Exit.
+- Tray icon state: normal / paused.
+- Notifications: paste failed, target not found, [v1] failover happened.
+- [v1] Priority order and target states. [v2] Settings window, language selection.
 
-## 7. Riskler
+## 7. Risks
 
-| Risk | Etki | Önlem |
+| Risk | Impact | Mitigation |
 |---|---|---|
-| İmleç chat kutusunda değil (özellikle IDE) | Görüntü yanlış yere gider | Hedef bazında odak stratejisi |
-| Odak çalma kısıtı | Pencere öne gelmez | AttachThreadInput + doğrulama; olmazsa iptal |
-| Alıntı aracı panoya geç yazar | Kaçırılan alıntı | 30 sn armed penceresi |
-| Pano çift güncelleme | Çift yapıştırma | Debounce |
-| Electron uygulamalarında UIA ağacı eksik | Limit kaçırılır | OCR yedeği |
-| Arayüz metinleri değişir | Tespit bozulur | Anahtar kelimeler ayar dosyasında |
-| Antivirüs yanlış alarmı (klavye kancası) | Uygulama engellenir | Açık kaynak; v2'de imzalama değerlendirilir |
-| Kullanım şartları | — | Hesap rotasyonu kapsam dışı; yalnızca uygulamalar arası geçiş |
+| Cursor not in the chat box (especially in the IDE) | Screenshot lands in the wrong place | Per-target focus strategy |
+| Foreground lock | Window does not come to front | AttachThreadInput + verification; cancel if it fails |
+| Snipping Tool writes to the clipboard late | Missed screenshot | 30 s armed window |
+| Clipboard updated twice | Double paste | Debounce |
+| Incomplete UIA tree in Electron apps | Limit missed | OCR fallback |
+| UI text changes | Detection breaks | Keywords kept in the settings file |
+| Antivirus false positive (keyboard hook) | App blocked | Open source; consider code signing in v2 |
+| Terms of service | — | Account rotation is out of scope; only switching between different apps |
 
-## 8. Aşamalar
+## 8. Phases
 
-**MVP** — kanca, pano izleyici, Dispatcher, tray hedef seçimi, odak stratejileri, otomatik başlatma, JSON ayarlar.
-- PrtScn alıntısı seçili hedefin chat kutusuna 1 sn içinde yapıştırılıyor.
-- Başka yerden kopyalanan görüntü hiçbir şeyi tetiklemiyor.
-- Claude Desktop, Antigravity, Antigravity IDE'de görüntü doğru alana gidiyor.
-- Hedef kapalı / öne gelmiyorsa bildirim çıkıyor, yapıştırma yapılmıyor.
-- Windows açılınca otomatik başlıyor.
+**MVP** — hook, clipboard listener, Dispatcher, tray target selection, focus strategies, auto-start, JSON settings.
+- A PrtScn screenshot is pasted into the selected target's chat box within 1 s.
+- An image copied from elsewhere triggers nothing.
+- In Claude Desktop, Antigravity, and Antigravity IDE the screenshot lands in the right place.
+- If the target is closed or cannot be brought to the front, a notification appears and nothing is pasted.
+- Starts automatically with Windows.
 
-**v1 — Limit sistemi** — LimitDetector (UIA + OCR), FailoverManager, RecoveryScheduler.
-- Limit uyarısı 2 sn içinde tespit ediliyor; sıradaki hedefe gidiliyor; limit kalkınca ana hedefe dönülüyor; yanlış pozitif yok.
+**v1 — Limit system** — LimitDetector (UIA + OCR), FailoverManager, RecoveryScheduler.
+- A limit warning is detected within 2 s; the next target is used; the primary target is restored when the limit clears; no false positives.
 
-**v2 — Paylaşıma hazırlık** — ayar ekranı, TR/EN arayüz, release otomasyonu.
-- Yeni bir kullanıcı README ile 5 dakikada kurup kullanabiliyor.
+**v2 — Ready to share** — settings window, TR/EN UI, release automation.
+- A new user can install and use it in 5 minutes with the README.
 
-## 9. Açık sorular
+## 9. Open questions
 
-1. Hedeflerin gerçek süreç adları (Tanılama menüsüyle doğrulanacak).
-2. Her hedefte chat kutusuna odaklanmanın en iyi yolu.
-3. Antigravity chat/agent kutusu görüntü yapıştırmayı destekliyor mu?
+1. The real process names of the targets (to be verified with the Diagnostics menu).
+2. The best way to focus the chat box in each target.
+3. Does Antigravity's chat/agent box accept pasted images?

@@ -2,10 +2,10 @@ using CoFast.Native;
 
 namespace CoFast.Dispatch;
 
-/// <summary>Ayrıştırılmış kısayol: önce basılacak değiştirici tuşlar, sonra asıl tuş.</summary>
+/// <summary>Parsed shortcut: modifier keys pressed first, then the main key.</summary>
 internal sealed record Hotkey(IReadOnlyList<ushort> Modifiers, ushort Key);
 
-/// <summary>"Ctrl+Shift+L", "Alt+1", "F6" gibi metinleri sanal tuş kodlarına çevirir.</summary>
+/// <summary>Converts text such as "Ctrl+Shift+L", "Alt+1", or "F6" into virtual-key codes.</summary>
 internal static class HotkeyParser
 {
     public static bool TryParse(string? text, out Hotkey? hotkey)
@@ -63,13 +63,13 @@ internal static class HotkeyParser
             var c = char.ToUpperInvariant(token[0]);
             if (c is >= 'A' and <= 'Z' or >= '0' and <= '9')
             {
-                return c; // A-Z ve 0-9 için VK kodu ASCII değeri ile aynıdır.
+                return c; // For A-Z and 0-9 the VK code equals the ASCII value.
             }
         }
 
         if (ParseModifier(token) is not null)
         {
-            return null; // Yalnız değiştirici tuş geçersiz.
+            return null; // A modifier on its own is invalid.
         }
 
         if (Enum.TryParse<Keys>(token, ignoreCase: true, out var k) && k != Keys.None && (int)k <= 0xFE)

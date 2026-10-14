@@ -1,41 +1,41 @@
 namespace CoFast.Localization;
 
 /// <summary>
-/// Kullanıcıya görünen tüm metinler. v2'de TR/EN kaynak dosyalarına taşınacak.
+/// All user-facing text. Will move to TR/EN resource files in v2.
 /// </summary>
 internal static class Strings
 {
     public const string AppName = "CO.FAST";
 
-    // Tray menüsü
-    public const string MenuTargetHeader = "Hedef";
-    public const string MenuNotOpenSuffix = " (kapalı)";
-    public const string MenuOtherWindow = "Diğer pencere";
-    public const string MenuNoWindows = "(açık pencere yok)";
-    public const string MenuPause = "Duraklat";
-    public const string MenuStartWithWindows = "Windows ile başlat";
-    public const string MenuDiagnostics = "Tanılama: açık pencereleri kopyala";
-    public const string MenuOpenSettings = "Ayarlar dosyasını aç";
-    public const string MenuReloadSettings = "Ayarları yeniden yükle";
-    public const string MenuOpenLog = "Log dosyasını aç";
-    public const string MenuExit = "Çıkış";
+    // Tray menu
+    public const string MenuTargetHeader = "Target";
+    public const string MenuNotOpenSuffix = " (closed)";
+    public const string MenuOtherWindow = "Other window";
+    public const string MenuNoWindows = "(no open windows)";
+    public const string MenuPause = "Pause";
+    public const string MenuStartWithWindows = "Start with Windows";
+    public const string MenuDiagnostics = "Diagnostics: copy open windows";
+    public const string MenuOpenSettings = "Open settings file";
+    public const string MenuReloadSettings = "Reload settings";
+    public const string MenuOpenLog = "Open log file";
+    public const string MenuExit = "Exit";
 
-    // Durum
-    public const string TooltipActive = "CO.FAST — hedef: {0}";
-    public const string TooltipPaused = "CO.FAST — duraklatıldı";
-    public const string NoTargetSelected = "seçilmedi";
+    // Status
+    public const string TooltipActive = "CO.FAST — target: {0}";
+    public const string TooltipPaused = "CO.FAST — paused";
+    public const string NoTargetSelected = "none";
 
-    // Bildirimler
-    public const string NotifyStarted = "Çalışıyor. PrtScn ile alıntı al; hedef: {0}";
-    public const string NotifyAlreadyRunning = "CO.FAST zaten çalışıyor (tray ikonuna bak).";
-    public const string NotifyNoTarget = "Hedef seçilmedi. Tray menüsünden bir hedef seç. Görüntü panoda.";
-    public const string NotifyTargetNotOpen = "\"{0}\" açık değil. Görüntü panoda, elle yapıştırabilirsin.";
-    public const string NotifyFocusFailed = "\"{0}\" öne getirilemedi. Görüntü panoda, elle yapıştırabilirsin.";
-    public const string NotifyPasteFailed = "Yapıştırma gönderilemedi. Görüntü panoda.";
-    public const string NotifyDiagnosticsCopied = "Açık pencerelerin listesi panoya kopyalandı ({0} pencere).";
-    public const string NotifySettingsReloaded = "Ayarlar yeniden yüklendi.";
-    public const string NotifySettingsInvalid = "Ayar dosyası okunamadı; varsayılanlar kullanılıyor. Yedek: {0}";
-    public const string NotifyHookFailed = "Klavye kancası kurulamadı. PrtScn dinlenemiyor. Log: {0}";
-    public const string NotifyAutoStartFailed = "Otomatik başlatma ayarı değiştirilemedi.";
-    public const string NotifyUnexpectedError = "Beklenmeyen hata. Ayrıntılar log dosyasında.";
+    // Notifications
+    public const string NotifyStarted = "Running. Take a snip with PrtScn; target: {0}";
+    public const string NotifyAlreadyRunning = "CO.FAST is already running (check the tray icon).";
+    public const string NotifyNoTarget = "No target selected. Pick one from the tray menu. The image is on the clipboard.";
+    public const string NotifyTargetNotOpen = "\"{0}\" is not open. The image is on the clipboard; you can paste it manually.";
+    public const string NotifyFocusFailed = "Could not bring \"{0}\" to the front. The image is on the clipboard; you can paste it manually.";
+    public const string NotifyPasteFailed = "Could not send the paste. The image is on the clipboard.";
+    public const string NotifyDiagnosticsCopied = "List of open windows copied to the clipboard ({0} windows).";
+    public const string NotifySettingsReloaded = "Settings reloaded.";
+    public const string NotifySettingsInvalid = "Settings file could not be read; using defaults. Backup: {0}";
+    public const string NotifyHookFailed = "Keyboard hook could not be installed. PrtScn cannot be detected. Log: {0}";
+    public const string NotifyAutoStartFailed = "Could not change the start-with-Windows setting.";
+    public const string NotifyUnexpectedError = "Unexpected error. Details are in the log file.";
 }

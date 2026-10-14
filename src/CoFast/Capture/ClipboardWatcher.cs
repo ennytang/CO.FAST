@@ -3,7 +3,7 @@ using CoFast.Native;
 namespace CoFast.Capture;
 
 /// <summary>
-/// Görünmez, yalnızca mesaj alan bir pencere ile pano değişikliklerini dinler.
+/// Listens for clipboard changes through an invisible, message-only window.
 /// </summary>
 internal sealed class ClipboardWatcher : NativeWindow, IDisposable
 {
@@ -26,7 +26,7 @@ internal sealed class ClipboardWatcher : NativeWindow, IDisposable
         _listening = NativeMethods.AddClipboardFormatListener(Handle);
         if (!_listening)
         {
-            throw new InvalidOperationException("AddClipboardFormatListener başarısız oldu.");
+            throw new InvalidOperationException("AddClipboardFormatListener failed.");
         }
     }
 

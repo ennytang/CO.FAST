@@ -5,14 +5,14 @@ using CoFast.Native;
 namespace CoFast.Dispatch;
 
 /// <summary>
-/// Windows'un "arka plandaki uygulama pencere öne getiremez" kısıtını
-/// AttachThreadInput (gerekirse Alt dokunuşu) ile aşar.
+/// Works around Windows' "a background app cannot bring a window to the front" rule
+/// using AttachThreadInput (and an Alt tap if needed).
 /// </summary>
 internal static class ForegroundHelper
 {
     public static bool IsForeground(IntPtr hwnd) => NativeMethods.GetForegroundWindow() == hwnd;
 
-    /// <summary>Pencereyi öne getirmeyi dener ve öne gelene kadar bekler.</summary>
+    /// <summary>Tries to bring the window to the front and waits until it is.</summary>
     public static async Task<bool> ActivateAsync(IntPtr hwnd, int timeoutMs)
     {
         if (!NativeMethods.IsWindow(hwnd))
@@ -36,13 +36,13 @@ internal static class ForegroundHelper
             return true;
         }
 
-        // İkinci deneme: Alt dokunuşu Windows'un odak kilidini açar.
+        // Second attempt: an Alt tap releases Windows' foreground lock.
         InputSender.TapKey(NativeMethods.VK_MENU);
         TryActivate(hwnd);
         return await WaitForegroundAsync(hwnd, Math.Max(100, timeoutMs - 400));
     }
 
-    /// <summary>Pencerenin görünen sınırları (gölge hariç).</summary>
+    /// <summary>The visible bounds of the window (excluding the shadow).</summary>
     public static Rectangle GetVisibleBounds(IntPtr hwnd)
     {
         var size = Marshal.SizeOf<NativeMethods.RECT>();

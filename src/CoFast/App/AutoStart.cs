@@ -2,7 +2,7 @@ using Microsoft.Win32;
 
 namespace CoFast.App;
 
-/// <summary>HKCU\...\Run anahtarı ile "Windows ile başlat" ayarı.</summary>
+/// <summary>"Start with Windows" via the HKCU\...\Run registry key.</summary>
 internal static class AutoStart
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";

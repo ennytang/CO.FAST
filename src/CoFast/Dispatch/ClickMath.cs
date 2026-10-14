@@ -2,12 +2,12 @@ using System.Drawing;
 
 namespace CoFast.Dispatch;
 
-/// <summary>Göreli tıklama noktası hesabı (saf mantık, test edilebilir).</summary>
+/// <summary>Relative click point math (pure logic, testable).</summary>
 internal static class ClickMath
 {
     /// <summary>
-    /// Pencere sınırları içinde (rx, ry) oranlarına karşılık gelen ekran noktası.
-    /// Oranlar 0..1 aralığına çekilir; nokta pencerenin içinde kalır.
+    /// The screen point inside the window bounds that corresponds to the (rx, ry) ratios.
+    /// Ratios are clamped to 0..1; the point stays inside the window.
     /// </summary>
     public static Point RelativePoint(Rectangle bounds, double rx, double ry)
     {

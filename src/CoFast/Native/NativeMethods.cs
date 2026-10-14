@@ -4,11 +4,11 @@ using System.Text;
 namespace CoFast.Native;
 
 /// <summary>
-/// Tüm Win32 çağrıları bu sınıfta toplanır (AGENTS.md kuralı).
+/// All Win32 calls live in this class (AGENTS.md rule).
 /// </summary>
 internal static class NativeMethods
 {
-    // --- Sabitler ---------------------------------------------------------
+    // --- Constants ---------------------------------------------------------
 
     public const int WH_KEYBOARD_LL = 13;
     public const int WM_KEYDOWN = 0x0100;
@@ -42,7 +42,7 @@ internal static class NativeMethods
 
     public static readonly IntPtr HWND_MESSAGE = new(-3);
 
-    // --- Yapılar ----------------------------------------------------------
+    // --- Structs -----------------------------------------------------------
 
     [StructLayout(LayoutKind.Sequential)]
     public struct KBDLLHOOKSTRUCT
@@ -117,12 +117,12 @@ internal static class NativeMethods
         public ushort wParamH;
     }
 
-    // --- Delegeler --------------------------------------------------------
+    // --- Delegates --------------------------------------------------------
 
     public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
     public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
-    // --- Kanca ------------------------------------------------------------
+    // --- Hook -------------------------------------------------------------
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -137,7 +137,7 @@ internal static class NativeMethods
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetModuleHandleW")]
     public static extern IntPtr GetModuleHandle(string? lpModuleName);
 
-    // --- Pano -------------------------------------------------------------
+    // --- Clipboard --------------------------------------------------------
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -147,7 +147,7 @@ internal static class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
 
-    // --- Pencereler -------------------------------------------------------
+    // --- Windows ----------------------------------------------------------
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -193,7 +193,7 @@ internal static class NativeMethods
     [DllImport("dwmapi.dll")]
     public static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out int pvAttribute, int cbAttribute);
 
-    // --- Odak -------------------------------------------------------------
+    // --- Focus ------------------------------------------------------------
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
@@ -217,7 +217,7 @@ internal static class NativeMethods
     [DllImport("kernel32.dll")]
     public static extern uint GetCurrentThreadId();
 
-    // --- Girdi ------------------------------------------------------------
+    // --- Input ------------------------------------------------------------
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);

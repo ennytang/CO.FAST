@@ -2,39 +2,39 @@ using CoFast.Targets;
 
 namespace CoFast.Settings;
 
-/// <summary>%AppData%\CoFast\settings.json içeriği.</summary>
+/// <summary>Contents of %AppData%\CoFast\settings.json.</summary>
 public sealed class AppSettings
 {
     public int Version { get; set; } = 1;
 
-    /// <summary>Seçili hedef profilin Id'si.</summary>
+    /// <summary>Id of the selected target profile.</summary>
     public string? SelectedTargetId { get; set; } = TargetRegistry.ClaudeDesktopId;
 
     public bool Paused { get; set; }
 
-    /// <summary>PrtScn'den sonra panoya görüntü gelmesi için beklenen en uzun süre.</summary>
+    /// <summary>How long to wait after PrtScn for an image to reach the clipboard.</summary>
     public int ArmTimeoutSeconds { get; set; } = 30;
 
-    /// <summary>Pano art arda güncellenirse son güncellemeden sonra beklenecek süre.</summary>
+    /// <summary>Delay after the last of several rapid clipboard updates.</summary>
     public int ClipboardDebounceMs { get; set; } = 250;
 
-    /// <summary>Alıntı aracı kapanırken hedefi öne getirmeden önceki kısa bekleme.</summary>
+    /// <summary>Short delay before activating the target while the Snipping Tool closes.</summary>
     public int ActivationDelayMs { get; set; } = 150;
 
-    /// <summary>Hedefin öne gelmesi için beklenen en uzun süre.</summary>
+    /// <summary>How long to wait for the target to come to the front.</summary>
     public int FocusTimeoutMs { get; set; } = 1500;
 
-    /// <summary>Odak stratejisinden sonra, Ctrl+V'den önceki bekleme.</summary>
+    /// <summary>Delay after the focus strategy, before Ctrl+V.</summary>
     public int PostFocusDelayMs { get; set; } = 150;
 
     public bool ShowNotifications { get; set; } = true;
 
-    /// <summary>ClickRelative stratejisinden sonra fare imlecini eski yerine götür.</summary>
+    /// <summary>Move the mouse cursor back after a ClickRelative focus.</summary>
     public bool RestoreCursorAfterClick { get; set; } = true;
 
     public List<TargetProfile> Targets { get; set; } = TargetRegistry.Defaults();
 
-    /// <summary>Okunan değerleri güvenli aralıklara çeker.</summary>
+    /// <summary>Clamps loaded values to safe ranges.</summary>
     public void Normalize()
     {
         ArmTimeoutSeconds = Math.Clamp(ArmTimeoutSeconds, 3, 300);

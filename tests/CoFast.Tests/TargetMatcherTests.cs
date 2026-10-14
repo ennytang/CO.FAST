@@ -8,7 +8,7 @@ public class TargetMatcherTests
 
     [Theory]
     [InlineData("claude", "Claude", true)]
-    [InlineData("Claude", "Herhangi bir başlık", true)]
+    [InlineData("Claude", "Any title", true)]
     [InlineData("claude.exe", "Claude", true)]
     [InlineData("chrome", "Claude", false)]
     public void ClaudeDesktop(string process, string title, bool expected) =>
@@ -28,7 +28,7 @@ public class TargetMatcherTests
     [InlineData("msedge", "ChatGPT - Microsoft Edge", true)]
     [InlineData("firefox", "Claude — Mozilla Firefox", true)]
     [InlineData("chrome", "YouTube - Google Chrome", false)]
-    [InlineData("notepad", "ChatGPT notlarım", false)]
+    [InlineData("notepad", "my ChatGPT notes", false)]
     public void Browser(string process, string title, bool expected) =>
         Assert.Equal(expected, TargetMatcher.Matches(Profile("browser-ai"), process, title));
 

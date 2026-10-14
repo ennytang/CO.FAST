@@ -21,12 +21,12 @@ internal static class Program
 
         var dataDir = SettingsStore.DefaultDirectory;
         Log.Initialize(dataDir);
-        Log.Info($"CO.FAST başlıyor. Sürüm {typeof(Program).Assembly.GetName().Version}");
+        Log.Info($"CO.FAST starting. Version {typeof(Program).Assembly.GetName().Version}");
 
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-        Application.ThreadException += (_, e) => Log.Error("UI thread hatası.", e.Exception);
+        Application.ThreadException += (_, e) => Log.Error("UI thread error.", e.Exception);
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
-            Log.Error("İşlenmemiş hata.", e.ExceptionObject as Exception);
+            Log.Error("Unhandled exception.", e.ExceptionObject as Exception);
 
         ApplicationConfiguration.Initialize();
 
@@ -34,6 +34,6 @@ internal static class Program
         using var app = new TrayApp(store);
         Application.Run(app);
 
-        Log.Info("CO.FAST kapandı.");
+        Log.Info("CO.FAST exited.");
     }
 }
